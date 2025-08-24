@@ -1,0 +1,380 @@
+/* CSS Variables - This makes theming much easier! */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #333333;
+    --card-bg: #f8f9fa;
+    --border-color: #e1e4e8;
+    --primary-color: #0366d6;
+    --hover-color: #f6f8fa;
+    --shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Dark theme variables - same names, different values */
+.dark-theme {
+    --bg-color: #0d1117;
+    --text-color: #f0f6fc;
+    --card-bg: #21262d;
+    --border-color: #30363d;
+    --primary-color: #58a6ff;
+    --hover-color: #262c36;
+    --shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* This makes sizing much more predictable */
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    transition: all 0.3s ease; /* Smooth theme transitions */
+}
+
+/* Header section */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Theme toggle button - styled like a trademark symbol */
+.theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    color: var(--text-color);
+}
+
+.theme-toggle:hover {
+    background-color: var(--hover-color);
+    transform: rotate(15deg); /* Fun little animation */
+}
+
+.auth-section {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Button styles - reusable component */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--hover-color);
+}
+
+/* Main content area */
+.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* Search section */
+.search-section {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.search-container {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-input {
+    width: 100%;
+    padding: 15px 20px;
+    font-size: 1.1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+}
+
+/* Results section */
+.results-section {
+    margin-bottom: 40px;
+}
+
+.repo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* Repository card - this is where the magic happens */
+.repo-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.repo-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+    border-color: var(--primary-color);
+}
+
+.repo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.repo-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.repo-stars {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.repo-description {
+    color: var(--text-color);
+    margin-bottom: 15px;
+    opacity: 0.8;
+}
+
+.repo-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.repo-language {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.language-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+}
+
+/* Save button - appears on hover */
+.save-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+/* Position the second button to the left of the first */
+.save-btn:nth-of-type(2) {
+    right: 70px; /* Move Browse button left */
+}
+
+.repo-card:hover .save-btn {
+    opacity: 1;
+}
+
+/* Save modal for categories */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--bg-color);
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.category-btn {
+    padding: 15px;
+    background-color: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.category-btn:hover {
+    border-color: var(--primary-color);
+    background-color: var(--hover-color);
+}
+
+.category-btn.selected {
+    border-color: var(--primary-color);
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Footer tagline */
+.footer {
+    text-align: center;
+    padding: 40px 20px;
+    border-top: 1px solid var(--border-color);
+    margin-top: 60px;
+}
+
+.tagline {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .header {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .logo {
+        font-size: 2rem;
+    }
+
+    .repo-grid {
+        grid-template-columns: 1fr;
+    }
+}
+/* Search input group with button */
+.search-input-group {
+    display: flex;
+    position: relative;
+    width: 100%;
+}
+
+.search-input {
+    width: 100%;
+    padding: 15px 60px 15px 20px; /* Extra padding on right for button */
+    font-size: 1.1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px 0 0 8px; /* Rounded left corners only */
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+.search-btn {
+    padding: 15px 20px;
+    border: 2px solid var(--border-color);
+    border-left: none; /* Connect to input */
+    border-radius: 0 8px 8px 0; /* Rounded right corners only */
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+}
+
+.search-btn:hover {
+    background-color: var(--primary-color);
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.search-btn:active {
+    transform: translateY(0);
+}
+
+.search-icon {
+    display: inline-block;
+}
+
+/* Make sure focus states work together */
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+}
+
+.search-input:focus + .search-btn {
+    border-color: var(--primary-color);
+}

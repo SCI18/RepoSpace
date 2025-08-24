@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RepoSpace - Your Personal GitHub Library</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header with logo, theme toggle, and sign-in -->
+    <header class="header">
+        <div class="logo-section">
+            <h1 class="logo">RepoSpace</h1>
+            <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                <span id="themeIcon">🌙</span>
+            </button>
+        </div>
+        
+        <div class="auth-section">
+						<button class="btn btn-secondary" id="browseSavedBtn">📁 Browse Saved</button>
+            <button class="btn btn-primary" id="loginBtn">Sign in with GitHub</button>
+            <span class="user-info" id="userInfo" style="display: none;"></span>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Search section -->
+				<section class="search-section">
+    				<div class="search-container">
+        				<div class="search-input-group">
+            				<input 
+                				type="text" 
+                				class="search-input" 
+                				id="searchInput"
+                				placeholder="Search repositories... (e.g., react, machine-learning, blockchain)"
+                				title="Press Ctrl+K to focus search"
+            				>
+            				<button class="search-btn" id="searchBtn" title="Search repositories">
+                		<span class="search-icon">🔍</span>
+            				</button>
+        				</div>
+    				</div>
+				</section>
+        <!-- Results section -->
+        <section class="results-section">
+            <div class="repo-grid" id="repoGrid">
+                <!-- Repository cards will be dynamically populated here -->
+                <div style="text-align: center; padding: 40px; color: var(--text-color); opacity: 0.6;">
+                    <div style="font-size: 3rem; margin-bottom: 20px;">🔍</div>
+                    <h3>Start by searching for repositories</h3>
+                    <p>Try searching for topics like "react", "python", "machine-learning", or "blockchain"</p>
+                    <p><small>Press <kbd>Ctrl+K</kbd> to quickly focus the search box</small></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Save Modal -->
+    <div class="modal" id="saveModal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Save Repository</h2>
+                <button class="btn btn-secondary" onclick="closeSaveModal()" title="Close modal (Esc)">✕</button>
+            </div>
+            
+            <p>Choose a category for <strong id="repoName"></strong>:</p>
+            
+            <div class="category-grid">
+                <div class="category-btn" data-category="web-dev">🌐 Web Dev</div>
+                <div class="category-btn" data-category="ai-ml">🤖 AI/ML</div>
+                <div class="category-btn" data-category="security">🔒 Security</div>
+                <div class="category-btn" data-category="blockchain">₿ Blockchain</div>
+                <div class="category-btn" data-category="tools">🛠️ Tools</div>
+                <div class="category-btn" data-category="osint">🕵️ OSINT</div>
+                <div class="category-btn" data-category="mobile">📱 Mobile</div>
+                <div class="category-btn" data-category="data-science">📊 Data Science</div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <input 
+                    type="text" 
+                    placeholder="Or create a custom category..." 
+                    class="search-input" 
+                    id="customCategory"
+                >
+            </div>
+            
+            <div style="margin-top: 25px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeSaveModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveRepository()">💾 Save Repository</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="tagline">Built by developers, for developers</div>
+        <div style="margin-top: 10px; font-size: 0.9rem; opacity: 0.6;">
+            <p>Repositories are saved to <code>~/RepoSpace/</code> for offline access</p>
+        </div>
+    </footer>
+
+    <!-- Load application JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
