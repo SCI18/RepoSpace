@@ -50,7 +50,7 @@ class RepoStorage {
                     language: repoData.language || 'Unknown',
                     stars: repoData.stars || 0,
                     savedAt: new Date().toISOString(),
-                    localPath: this.getRepoPath(repoData.fullName),
+                    localPath: this.getRepoPath(repoData.fullName, category),
                     category: category
                 };
 
@@ -66,18 +66,19 @@ class RepoStorage {
     }
 
     // Get the local file path for a repository
-    getRepoPath(fullName) {
-        return path.join(this.baseDir, fullName.replace('/', '-'));
-    }
+		getRepoPath(fullName, category = 'uncategorized') {
+    		return path.join(this.baseDir, category, fullName.replace('/', '-'));
+		}
 
     // Save repository files to disk
-    async saveRepositoryFiles(repoName, files) {
-        try {
-            const repoDir = this.getRepoPath(repoName);
+		async saveRepositoryFiles(repoName, files, category = 'uncategorized') {
+		    try {
+    		    const repoDir = this.getRepoPath(repoName, category);
+        
+        		await fs.ensureDir(path.dirname(repoDir));
 
-            // Create repository directory
-            await fs.ensureDir(repoDir);
-
+        		await fs.ensureDir(repoDir);
+    
             // Save each file
             for (const file of files) {
                 const filePath = path.join(repoDir, file.path);

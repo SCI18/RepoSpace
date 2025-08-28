@@ -3,7 +3,6 @@ console.log('🔍 Debugging module availability:');
 console.log('- require available:', typeof require !== 'undefined');
 console.log('- electron available:', typeof require !== 'undefined' && require.resolve ? 'yes' : 'no');
 
-// Try to load modules with error handling
 let GitHubAPI, RepoStorage, ipcRenderer;
 
 try {
@@ -26,33 +25,25 @@ try {
 
 class RepoSpaceApp {
     constructor() {
-        // Initialize components (with fallbacks for missing modules)
         this.githubAPI = GitHubAPI ? new GitHubAPI() : null;
         this.repoStorage = RepoStorage ? new RepoStorage() : null;
         this.currentRepo = null;
         this.searchTimeout = null;
         
-        // DOM elements
         this.elements = {};
         
-        // Initialize app when DOM is loaded
         this.init();
     }
     
-    // Initialize the application
     init() {
         console.log('🚀 RepoSpace starting...');
         
-        // Cache DOM elements
         this.cacheElements();
         
-        // Set up event listeners
         this.setupEventListeners();
         
-        // Initialize theme
         this.initializeTheme();
         
-        // Ensure storage directory exists
         if (this.repoStorage) {
             this.repoStorage.ensureBaseDirectory();
         }
@@ -60,7 +51,6 @@ class RepoSpaceApp {
         console.log('✅ RepoSpace initialized');
     }
     
-    // Cache frequently used DOM elements
     cacheElements() {
         this.elements = {
             themeToggle: document.getElementById('themeToggle'),
@@ -76,7 +66,6 @@ class RepoSpaceApp {
             customCategory: document.getElementById('customCategory')
         };
         
-        // Check if all elements were found
         const missingElements = Object.entries(this.elements)
             .filter(([key, element]) => !element)
             .map(([key]) => key);
@@ -86,28 +75,36 @@ class RepoSpaceApp {
         }
     }
     
-    // Set up all event listeners
     setupEventListeners() {
-        // Theme toggle
         if (this.elements.themeToggle) {
             this.elements.themeToggle.addEventListener('click', () => this.toggleTheme());
         }
         if (this.elements.browseSavedBtn) {
     				this.elements.browseSavedBtn.addEventListener('click', () => this.showSavedRepos());
 				}
+				console.log('🔍 Looking for browseSavedBtn element...');
+				if (this.elements.browseSavedBtn) {
+    				console.log('✅ Browse Saved button found and connected');
+    				this.elements.browseSavedBtn.addEventListener('click', (e) => {
+        		console.log('🖱️ Browse Saved button clicked!');
+        		console.log('🔍 Event details:', e);
+        		console.log('📦 RepoStorage available:', !!this.repoStorage);
+        		this.showSavedRepos();
+    				});
+				} else {
+    				console.log('❌ Browse Saved button NOT found in DOM!');
+    				console.log('📋 Available elements:', Object.keys(this.elements));
+				}
 
-        // Authentication
         if (this.elements.loginBtn) {
             this.elements.loginBtn.addEventListener('click', () => this.handleLogin());
         }
         
-        // Search functionality
         if (this.elements.searchInput) {
             this.elements.searchInput.addEventListener('input', (e) => this.handleSearchInput(e));
             this.elements.searchInput.addEventListener('keypress', (e) => this.handleSearchKeypress(e));
         }
         
-        // Modal functionality
         if (this.elements.saveModal) {
             this.elements.saveModal.addEventListener('click', (e) => this.handleModalClick(e));
         }
@@ -120,17 +117,14 @@ class RepoSpaceApp {
     			});
 				}
         
-        // Category selection
         document.querySelectorAll('.category-btn').forEach(btn => {
             btn.addEventListener('click', () => this.selectCategory(btn));
         });
         
-        // Global keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleGlobalKeyboard(e));
     }
     
 
-    // Initialize theme based on saved preference
     initializeTheme() {
         const savedTheme = localStorage.getItem('theme') || 'light';
         const body = document.body;
@@ -148,7 +142,6 @@ class RepoSpaceApp {
         }
     }
     
-    // Toggle between light and dark theme
     toggleTheme() {
         const body = document.body;
         const isDark = body.classList.toggle('dark-theme');
@@ -161,7 +154,6 @@ class RepoSpaceApp {
         console.log(`🎨 Switched to ${isDark ? 'dark' : 'light'} theme`);
     }
     
-    // Handle GitHub OAuth login
     async handleLogin() {
         if (!ipcRenderer) {
             this.showError('OAuth not available - not running in Electron');
@@ -174,12 +166,10 @@ class RepoSpaceApp {
             
             const accessToken = await ipcRenderer.invoke('start-oauth');
             
-            // Update GitHub API with token
             if (this.githubAPI) {
                 this.githubAPI = new GitHubAPI(accessToken);
             }
             
-            // Update UI
             this.elements.loginBtn.style.display = 'none';
             this.elements.userInfo.style.display = 'block';
             this.elements.userInfo.textContent = '✅ Signed in';
@@ -190,19 +180,22 @@ class RepoSpaceApp {
             console.error('❌ Login failed:', error);
             this.showError('Login failed: ' + error.message);
             
-            // Reset button
             this.elements.loginBtn.textContent = 'Sign in with GitHub';
             this.elements.loginBtn.disabled = false;
         }
     }
 		showSavedRepos() {
+				console.log('📁 showSavedRepos() called');
+    
     		if (!this.repoStorage) {
+        		console.log('❌ Storage system not available');
         		this.showError('Storage system not available');
         		return;
     		}
     
     		const categories = this.repoStorage.getCategories();
-    
+		    console.log('📂 Found categories:', categories);
+
     		if (categories.length === 0) {
         		this.elements.repoGrid.innerHTML = `
             		<div style="text-align: center; padding: 40px; color: var(--text-color);">
@@ -214,7 +207,6 @@ class RepoSpaceApp {
         		return;
     		}
     
-    		// Display categories and their repos
     		let html = '';
     		categories.forEach(category => {
         		const repos = this.repoStorage.getReposByCategory(category);
@@ -232,7 +224,6 @@ class RepoSpaceApp {
     		console.log(`📁 Showing ${categories.length} categories with saved repos`);
 		}
     
-    // Handle search input with debouncing
     handleSearchInput(e) {
         clearTimeout(this.searchTimeout);
         
@@ -246,7 +237,6 @@ class RepoSpaceApp {
         }
     }
     
-    // Handle search on Enter key
     handleSearchKeypress(e) {
         if (e.key === 'Enter') {
             clearTimeout(this.searchTimeout);
@@ -257,7 +247,6 @@ class RepoSpaceApp {
         }
     }
     
-    // Search repositories using GitHub API
     async searchRepositories(query) {
         if (!this.githubAPI) {
             this.showError('GitHub API not available');
@@ -267,13 +256,10 @@ class RepoSpaceApp {
         try {
             console.log('🔍 Searching for:', query);
             
-            // Show loading state
             this.showLoading();
             
-            // Search using GitHub API
             const results = await this.githubAPI.searchRepositories(query);
             
-            // Display results
             this.displaySearchResults(results.items || []);
             
         } catch (error) {
@@ -282,7 +268,6 @@ class RepoSpaceApp {
         }
     }
     
-    // Display search results
     displaySearchResults(repositories) {
         if (!this.elements.repoGrid) return;
         
@@ -300,7 +285,6 @@ class RepoSpaceApp {
         console.log(`📦 Found ${repositories.length} repositories`);
     }
     
-    // Create HTML for repository card
     createRepoCard(repo) {
         const description = (repo.description || 'No description available').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
         
@@ -356,23 +340,114 @@ class RepoSpaceApp {
 		}
     
 
-    viewRepo(fullName) {
-    // Check if repo is saved locally first
-    		if (this.repoStorage && this.repoStorage.checkRepoExists(fullName)) {
-        		this.showSavedRepos|(fullName);
-    		} else {
-        	// Fallback to GitHub
-        	window.open(`https://github.com/${fullName}`, '_blank');
-    		}
+		async viewRepo(fullName) {
+    	try {
+        	if (this.repoStorage) {
+            	const exists = await this.repoStorage.checkRepoExists(fullName);
+            	if (exists) {
+                	await this.showRepoViewer(fullName);
+                	return;
+            	}
+        	}
+        
+        	await this.showRepoPreview(fullName);
+        
+    	} catch (error) {
+        	console.error('Error viewing repo:', error);
+        	this.showError('Error viewing repository: ' + error.message);
+    	}
+		}
+
+		async showRepoPreview(fullName) {
+    	try {
+        	const [owner, repo] = fullName.split('/');
+        
+        	this.elements.repoGrid.innerHTML = '<div style="text-align: center; padding: 40px;">📖 Loading preview...</div>';
+        
+        	const repoData = await this.githubAPI.getRepository(owner, repo);
+        	const readmeContent = await this.githubAPI.getFileContent(owner, repo, 'README.md').catch(() => 'No README found');
+        
+        	const description = (repoData.description || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+        
+        	const html = `
+            	<div style="padding: 20px;">
+                	<div class="preview-banner" style="background: var(--hover-color); padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    	<div>
+                        	<strong>📖 Preview Mode</strong> - Save this repository for full offline access and file browsing
+                    	</div>
+                    	<button class="btn btn-primary" onclick="app.openSaveModal('${fullName}', '${repoData.clone_url}', '${description}', '${repoData.language || ''}', ${repoData.stargazers_count})">
+                        	💾 Save Repository
+                    	</button>
+                	</div>
+                
+                	<h2 style="color: var(--primary-color);">${fullName}</h2>
+                	<p style="opacity: 0.8; margin-bottom: 20px;">${repoData.description || 'No description'}</p>
+                
+                	<div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                    	<span>⭐ ${this.formatNumber(repoData.stargazers_count)} stars</span>
+                    	<span>🍴 ${this.formatNumber(repoData.forks_count)} forks</span>
+                    	<span>📝 ${repoData.language || 'No language'}</span>
+                	</div>
+                
+                	<div style="background: var(--card-bg); padding: 20px; border-radius: 8px;">
+                    	<h3>README.md</h3>
+                    	<pre style="white-space: pre-wrap; font-family: monospace; background: var(--bg-color); padding: 15px; border-radius: 6px; overflow-x: auto;">${readmeContent}</pre>
+                	</div>
+                
+                	<div style="text-align: center; margin-top: 20px;">
+                    	<button class="btn btn-secondary" onclick="history.back()">← Back</button>
+                	</div>
+            	</div>
+        	`;
+        
+        	this.elements.repoGrid.innerHTML = html;
+    	} catch (error) {
+        	console.error('Error loading preview:', error);
+        	this.showError('Error loading preview: ' + error.message);
+    	}
 		}
 
 		showSavedRepos() {
-    	const categories = this.repoStorage.getCategories();
-    	// Create UI to browse saved repos by category
-    	// Show file tree, README preview, etc.
+				console.log('📁 showSavedRepos() called');
+    
+    		if (!this.repoStorage) {
+        		this.showError('Storage system not available');
+        		return;
+    		}
+    
+    		const categories = this.repoStorage.getCategories();
+    		console.log('📂 Found categories:', categories);
+    
+    		if (categories.length === 0) {
+        		this.elements.repoGrid.innerHTML = `
+            		<div style="text-align: center; padding: 40px; color: var(--text-color);">
+                		<div style="font-size: 3rem; margin-bottom: 20px;">📁</div>
+                		<h3>No saved repositories yet</h3>
+                		<p>Search and save some repositories to see them here!</p>
+            		</div>
+        		`;
+        		return;
+    		}
+    
+    		let html = '';
+    		categories.forEach(category => {
+        		const repos = this.repoStorage.getReposByCategory(category);
+        		html += `
+            		<div style="margin-bottom: 30px;">
+                		<h3 style="color: var(--primary-color); margin-bottom: 15px;">📂 ${category} (${repos.length})</h3>
+                		<div class="repo-grid">
+                    		${repos.map(repo => this.createSavedRepoCard(repo)).join('')}
+                		</div>
+            		</div>
+        		`;
+    		});
+    
+    		this.elements.repoGrid.innerHTML = html;
+    		console.log(`📁 Showing ${categories.length} categories with saved repos`);
+
+
 		}
     
-    // Open save modal with repository data
     openSaveModal(fullName, cloneUrl, description = '', language = '', stars = 0) {
         this.currentRepo = {
             fullName: fullName,
@@ -390,13 +465,11 @@ class RepoSpaceApp {
             this.elements.saveModal.style.display = 'block';
         }
         
-        // Load existing categories
         this.loadExistingCategories();
         
         console.log('💾 Opening save modal for:', fullName);
     }
     
-    // Load and display existing categories
     loadExistingCategories() {
         if (!this.repoStorage) return;
         
@@ -405,11 +478,9 @@ class RepoSpaceApp {
         
         if (!categoryGrid) return;
         
-        // Remove any previously added custom categories
         const existingCustom = categoryGrid.querySelectorAll('.category-btn.custom');
         existingCustom.forEach(btn => btn.remove());
         
-        // Add existing categories as options
         categories.forEach(category => {
             const btn = document.createElement('div');
             btn.className = 'category-btn custom';
@@ -420,19 +491,15 @@ class RepoSpaceApp {
         });
     }
     
-    // Handle category selection
     selectCategory(btn) {
-        // Remove selection from all buttons
         document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
         
-        // Select clicked button
         btn.classList.add('selected');
         if (this.elements.customCategory) {
             this.elements.customCategory.value = btn.dataset.category;
         }
     }
     
-    // Save repository
     async saveRepository() {
         const category = this.elements.customCategory ? this.elements.customCategory.value.trim() : '';
         
@@ -454,7 +521,6 @@ class RepoSpaceApp {
         try {
             console.log(`💾 Saving ${this.currentRepo.fullName} to category: ${category}`);
             
-            // Save metadata first
             const saved = this.repoStorage.saveRepoMetadata(this.currentRepo, category);
             
             if (!saved) {
@@ -462,13 +528,10 @@ class RepoSpaceApp {
                 return;
             }
             
-            // Download and save files
             await this.downloadRepositoryFiles(this.currentRepo);
             
-            // Show success message
             this.showSuccess(`✅ Repository saved to "${category}" category!`);
             
-            // Close modal
             this.closeSaveModal();
             
         } catch (error) {
@@ -477,7 +540,6 @@ class RepoSpaceApp {
         }
     }
     
-    // Download repository files
     async downloadRepositoryFiles(repoData) {
         if (!this.githubAPI || !this.repoStorage) {
             throw new Error('Required services not available');
@@ -488,11 +550,9 @@ class RepoSpaceApp {
             
             console.log(`📥 Downloading files from ${repoData.fullName}...`);
             
-            // Get all files using GitHub API
             const files = await this.githubAPI.getAllRepositoryFiles(owner, repo);
             
-            // Save files to disk
-            const savedPath = await this.repoStorage.saveRepositoryFiles(repoData.fullName, files);
+						const savedPath = await this.repoStorage.saveRepositoryFiles(repoData.fullName, files, category);
             
             console.log(`✅ Successfully downloaded ${files.length} files to: ${savedPath}`);
             
@@ -515,13 +575,11 @@ class RepoSpaceApp {
         }
     }
     
-    // Close save modal
     closeSaveModal() {
         if (this.elements.saveModal) {
             this.elements.saveModal.style.display = 'none';
         }
         
-        // Reset form
         document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('selected'));
         if (this.elements.customCategory) {
             this.elements.customCategory.value = '';
@@ -529,21 +587,17 @@ class RepoSpaceApp {
         this.currentRepo = null;
     }
     
-    // Handle modal clicks (close when clicking outside)
     handleModalClick(e) {
         if (e.target.id === 'saveModal') {
             this.closeSaveModal();
         }
     }
     
-    // Handle global keyboard shortcuts
     handleGlobalKeyboard(e) {
-        // Escape key closes modal
         if (e.key === 'Escape' && this.elements.saveModal && this.elements.saveModal.style.display === 'block') {
             this.closeSaveModal();
         }
         
-        // Ctrl/Cmd + K focuses search
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
             if (this.elements.searchInput) {
@@ -552,7 +606,6 @@ class RepoSpaceApp {
         }
     }
     
-    // Utility functions
     showLoading() {
         if (this.elements.repoGrid) {
             this.elements.repoGrid.innerHTML = `
@@ -638,7 +691,6 @@ function closeSaveModal() {
     }
 }
 
-// Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new RepoSpaceApp();
 });
